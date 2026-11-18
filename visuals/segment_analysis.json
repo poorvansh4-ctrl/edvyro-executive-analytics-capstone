@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "form": "switcher",
+  "title": "Churn and charges differ across customer segments",
+  "aside": "Observed rates and cohort means \u00b7 full sample",
+  "views": [
+    {
+      "label": "Payment method",
+      "form": "categorical-bars",
+      "title": "Electronic check had the highest churn rate",
+      "aside": "Observed churn rate by payment method",
+      "mode": "grouped",
+      "orientation": "horizontal",
+      "labels": [
+        "Electronic check",
+        "Mailed check",
+        "Bank transfer (automatic)",
+        "Credit card (automatic)"
+      ],
+      "axis": {
+        "zero": true
+      },
+      "series": [
+        {
+          "label": "Churn rate",
+          "valueKind": "percent",
+          "role": "subject",
+          "data": [
+            45.2854,
+            19.1067,
+            16.7098,
+            15.2431
+          ]
+        }
+      ],
+      "subjectIndex": 0
+    },
+    {
+      "label": "Tenure band",
+      "form": "categorical-bars",
+      "title": "Churn rate by tenure band",
+      "aside": "Observed churn rate \u00b7 each band's customers",
+      "mode": "grouped",
+      "orientation": "horizontal",
+      "labels": [
+        "0\u201312",
+        "13\u201324",
+        "25\u201336",
+        "37\u201348",
+        "49\u201360",
+        "61\u201372"
+      ],
+      "axis": {
+        "zero": true
+      },
+      "series": [
+        {
+          "label": "Churn rate",
+          "valueKind": "percent",
+          "role": "subject",
+          "data": [
+            47.4382,
+            28.7109,
+            21.6346,
+            19.0289,
+            14.4231,
+            6.6098
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Monthly charges",
+      "form": "categorical-bars",
+      "title": "Mean MonthlyCharges were higher in the churned cohort",
+      "aside": "Cohort mean \u00b7 reported charge units",
+      "mode": "grouped",
+      "orientation": "horizontal",
+      "labels": [
+        "Retained",
+        "Churned"
+      ],
+      "axis": {
+        "zero": true
+      },
+      "series": [
+        {
+          "label": "Mean MonthlyCharges",
+          "valueKind": "number",
+          "role": "subject",
+          "data": [
+            61.2651,
+            74.4413
+          ]
+        }
+      ]
+    }
+  ]
+}

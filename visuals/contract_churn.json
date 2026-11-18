@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "form": "categorical-bars",
+  "title": "Month-to-month had the highest churn rate",
+  "aside": "Observed churn rate by contract \u00b7 rates use each contract's customers",
+  "mode": "grouped",
+  "orientation": "horizontal",
+  "labels": [
+    "Month-to-month",
+    "One year",
+    "Two year"
+  ],
+  "axis": {
+    "zero": true
+  },
+  "series": [
+    {
+      "label": "Churn rate",
+      "valueKind": "percent",
+      "role": "subject",
+      "data": [
+        42.7097,
+        11.2695,
+        2.8319
+      ]
+    }
+  ],
+  "subjectIndex": 0
+}

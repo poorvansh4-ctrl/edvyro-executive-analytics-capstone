@@ -1,0 +1,8 @@
+pandas>=2.1,<4.0
+numpy>=1.26,<3.0
+matplotlib>=3.8
+seaborn>=0.13
+streamlit>=1.50,<2.0
+jupyterlab>=4.0
+ipython>=8.0
+ipykernel>=6.29

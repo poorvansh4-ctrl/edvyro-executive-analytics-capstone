@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "form": "categorical-bars",
+  "title": "Most customers were retained",
+  "aside": "Customer records in the IBM sample \u00b7 7,043 total",
+  "mode": "grouped",
+  "orientation": "vertical",
+  "labels": [
+    "Retained",
+    "Churned"
+  ],
+  "axis": {
+    "zero": true
+  },
+  "series": [
+    {
+      "label": "Customers",
+      "valueKind": "count",
+      "role": "subject",
+      "data": [
+        5174,
+        1869
+      ]
+    }
+  ]
+}
