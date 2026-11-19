@@ -1,0 +1,9 @@
+indicator,definition,train_customers_flagged,train_churn_rate_flagged_pct,train_churn_rate_not_flagged_pct,lift_pp,points
+month_to_month_contract,Contract is month-to-month (customer can leave in any month),2704,42.86,6.69,36.17,17
+early_tenure,Tenure of 12 months or less (first contract year),1537,47.69,16.95,30.74,15
+electronic_check_payment,"Pays by electronic check (manual, non-automatic payment)",1654,45.65,16.88,28.77,14
+fiber_optic_service,Has fiber optic internet service,2177,41.85,14.42,27.43,13
+no_online_security,Internet customer without the Online Security add-on,2439,42.03,11.36,30.66,14
+no_tech_support,Internet customer without the Tech Support add-on,2411,41.93,11.79,30.14,14
+high_monthly_charges,Monthly charges of 90 or more,1242,33.57,24.16,9.42,4
+paperless_billing,Uses paperless billing,2920,34.01,15.67,18.34,9

@@ -1,0 +1,214 @@
+{
+  "dataset": {
+    "customers": 7043,
+    "historical_churn_rate_pct": 26.54
+  },
+  "split": {
+    "seed": 42,
+    "train_customers": 4930,
+    "test_customers": 2113
+  },
+  "validation": {
+    "auc_train": 0.8358,
+    "auc_test": 0.826,
+    "benchmark_logistic_regression_auc_test": 0.8306,
+    "tiers_monotonic_on_test": true,
+    "test_share_high_or_critical_pct": 34.5,
+    "test_churn_capture_high_or_critical_pct": 70.77,
+    "test_tier_churn": [
+      {
+        "risk_category": "Low",
+        "customers": 731,
+        "churned": 28,
+        "churn_rate_pct": 3.8
+      },
+      {
+        "risk_category": "Medium",
+        "customers": 653,
+        "churned": 136,
+        "churn_rate_pct": 20.8
+      },
+      {
+        "risk_category": "High",
+        "customers": 362,
+        "churned": 153,
+        "churn_rate_pct": 42.3
+      },
+      {
+        "risk_category": "Critical",
+        "customers": 367,
+        "churned": 244,
+        "churn_rate_pct": 66.5
+      }
+    ]
+  },
+  "kmeans_silhouette": {
+    "2": 0.365,
+    "3": 0.403,
+    "4": 0.362,
+    "5": 0.344,
+    "6": 0.34,
+    "7": 0.335,
+    "8": 0.34
+  },
+  "risk_distribution": [
+    {
+      "risk_category": "Low",
+      "customers": 2451,
+      "share_pct": 34.8,
+      "avg_risk_score": 11.0,
+      "historical_churn_rate_pct": 3.7
+    },
+    {
+      "risk_category": "Medium",
+      "customers": 2156,
+      "share_pct": 30.6,
+      "avg_risk_score": 44.2,
+      "historical_churn_rate_pct": 20.0
+    },
+    {
+      "risk_category": "High",
+      "customers": 1167,
+      "share_pct": 16.6,
+      "avg_risk_score": 68.5,
+      "historical_churn_rate_pct": 43.1
+    },
+    {
+      "risk_category": "Critical",
+      "customers": 1269,
+      "share_pct": 18.0,
+      "avg_risk_score": 88.2,
+      "historical_churn_rate_pct": 66.4
+    }
+  ],
+  "segment_summary": [
+    {
+      "segment": "New Customers",
+      "customer_count": 2186,
+      "customer_pct": 31.04,
+      "avg_tenure_months": 4.7,
+      "avg_monthly_charges": 56.1,
+      "churn_rate_pct": 47.44,
+      "avg_risk_score": 65.8,
+      "high_or_critical_pct": 64.55,
+      "main_characteristics": "Median tenure 4 months; 91% month-to-month; 42% fiber optic; 45% electronic check; average 1.0 add-on services"
+    },
+    {
+      "segment": "High-Value Customers",
+      "customer_count": 1525,
+      "customer_pct": 21.65,
+      "avg_tenure_months": 50.3,
+      "avg_monthly_charges": 101.62,
+      "churn_rate_pct": 26.69,
+      "avg_risk_score": 52.1,
+      "high_or_critical_pct": 36.2,
+      "main_characteristics": "Median tenure 54 months; 42% month-to-month; 97% fiber optic; 42% electronic check; average 3.9 add-on services"
+    },
+    {
+      "segment": "Phone-Only Basic Customers",
+      "customer_count": 1013,
+      "customer_pct": 14.38,
+      "avg_tenure_months": 43.7,
+      "avg_monthly_charges": 21.44,
+      "churn_rate_pct": 2.07,
+      "avg_risk_score": 5.9,
+      "high_or_critical_pct": 0.0,
+      "main_characteristics": "Median tenure 44 months; 13% month-to-month; 0% fiber optic; 7% electronic check; average 0.0 add-on services"
+    },
+    {
+      "segment": "Loyal Contract Customers",
+      "customer_count": 1221,
+      "customer_pct": 17.34,
+      "avg_tenure_months": 51.8,
+      "avg_monthly_charges": 67.59,
+      "churn_rate_pct": 5.65,
+      "avg_risk_score": 18.2,
+      "high_or_critical_pct": 0.66,
+      "main_characteristics": "Median tenure 56 months; 0% month-to-month; 11% fiber optic; 16% electronic check; average 3.5 add-on services"
+    },
+    {
+      "segment": "Flexible Month-to-Month Customers",
+      "customer_count": 1098,
+      "customer_pct": 15.59,
+      "avg_tenure_months": 30.4,
+      "avg_monthly_charges": 67.64,
+      "churn_rate_pct": 30.51,
+      "avg_risk_score": 56.9,
+      "high_or_critical_pct": 42.35,
+      "main_characteristics": "Median tenure 27 months; 100% month-to-month; 51% fiber optic; 44% electronic check; average 1.7 add-on services"
+    }
+  ],
+  "high_value_by_contract": [
+    {
+      "Contract": "Month-to-month",
+      "customers": 647,
+      "churn_rate_pct": 44.0,
+      "avg_risk_score": 70.4
+    },
+    {
+      "Contract": "One/two-year",
+      "customers": 878,
+      "churn_rate_pct": 13.9,
+      "avg_risk_score": 38.7
+    }
+  ],
+  "priority_list": {
+    "active_high_or_critical_customers": 1090,
+    "by_segment": {
+      "New Customers": 539,
+      "High-Value Customers": 300,
+      "Phone-Only Basic Customers": 0,
+      "Loyal Contract Customers": 6,
+      "Flexible Month-to-Month Customers": 245
+    },
+    "by_tier": {
+      "High": 664,
+      "Critical": 426
+    },
+    "monthly_charges_exposure": 83087.3,
+    "share_of_active_monthly_charges_pct": 26.21,
+    "active_customers": 5174
+  },
+  "weights": [
+    {
+      "indicator": "month_to_month_contract",
+      "lift_pp": 36.17,
+      "points": 17
+    },
+    {
+      "indicator": "early_tenure",
+      "lift_pp": 30.74,
+      "points": 15
+    },
+    {
+      "indicator": "electronic_check_payment",
+      "lift_pp": 28.77,
+      "points": 14
+    },
+    {
+      "indicator": "fiber_optic_service",
+      "lift_pp": 27.43,
+      "points": 13
+    },
+    {
+      "indicator": "no_online_security",
+      "lift_pp": 30.66,
+      "points": 14
+    },
+    {
+      "indicator": "no_tech_support",
+      "lift_pp": 30.14,
+      "points": 14
+    },
+    {
+      "indicator": "high_monthly_charges",
+      "lift_pp": 9.42,
+      "points": 4
+    },
+    {
+      "indicator": "paperless_billing",
+      "lift_pp": 18.34,
+      "points": 9
+    }
+  ]
+}

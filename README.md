@@ -4,6 +4,8 @@
 
 An end-to-end, beginner-friendly customer churn audit and EDA project. It includes the unmodified raw data, a cleaned CSV, an executed analysis notebook, a generated data-quality report, chart artifacts, and an interactive Streamlit dashboard.
 
+**Task 04 extension:** the project now also includes an explainable [customer segmentation, churn-risk scoring and recommendation model](#task-04-customer-segmentation-and-recommendation-model). It has an executed notebook, segment and risk-score tables, a recommendation memo and an edge-case validation report.
+
 ## Dataset source and verification
 
 - IBM repository: [IBM/telco-customer-churn-on-icp4d](https://github.com/IBM/telco-customer-churn-on-icp4d)
@@ -29,15 +31,31 @@ customer-churn-analysis/
 ├── data/
 │   ├── raw/Telco-Customer-Churn.csv
 │   └── processed/customer_churn_cleaned.csv
-├── notebooks/customer_churn_analysis.ipynb
-├── reports/data_quality_report.md
+├── notebooks/
+│   ├── customer_churn_analysis.ipynb
+│   └── 04_segmentation_recommendation.ipynb      # Task 04
+├── reports/
+│   ├── data_quality_report.md
+│   ├── recommendation_memo.md                     # Task 04
+│   └── edge_case_validation.md                    # Task 04
+├── outputs/                                       # Task 04
+│   ├── customer_segments.csv
+│   ├── segment_summary.csv
+│   ├── customer_risk_scores.csv
+│   ├── risk_scoring_weights.csv
+│   ├── priority_retention_list.csv
+│   ├── task04_metrics.json
+│   └── visuals/*.png
 ├── dashboard/app.py
 ├── visuals/
 │   ├── churn_distribution_notion_agent_chart.html
 │   ├── contract_churn_notion_agent_chart.html
 │   ├── segment_analysis_notion_agent_chart.html
 │   └── chart JSON specifications
-├── scripts/analyze_customer_churn.py
+├── scripts/
+│   ├── analyze_customer_churn.py
+│   ├── segmentation_model.py                      # Task 04
+│   └── validate_edge_cases.py                     # Task 04
 ├── analysis_evidence.json
 ├── requirements.txt
 └── .gitignore
@@ -75,11 +93,138 @@ python scripts/analyze_customer_churn.py
 
 The generated HTML chart artifacts are checked in under `visuals/`. They were built from the included specifications; regenerating those particular HTML files requires the chart-builder environment used to create them.
 
+## Task 04: Customer Segmentation and Recommendation Model
+
+**Deliverables:** [Analysis notebook](notebooks/04_segmentation_recommendation.ipynb) · [Segment table](outputs/segment_summary.csv) · [Recommendation memo](reports/recommendation_memo.md) · [Edge case validation](reports/edge_case_validation.md)
+
+### Business objective
+
+Move from describing churn to an **explainable prioritisation model**: decide which customers the retention team should contact first, explain why each customer was flagged, and match each customer to a suitable retention action.
+
+The work keeps three things separate:
+
+- **Historical churn status:** the dataset's `Churn` column.
+- **Rule-based churn-risk score:** transparent points that never use `Churn` as an input. It is not a trained predictive model.
+- **Benchmark logistic regression:** used only as a yardstick for the score, and never exported.
+
+### Segmentation methodology
+
+Five mutually exclusive segments are assigned by ordered business rules (first match wins). Thresholds come from the contract calendar and the charge distribution, never from churn. K-Means was evaluated (best silhouette 0.403 at k = 3, which means groups overlap) and was not adopted because it adds no clear separation and is harder to explain.
+
+| Segment | Rule | Customers | Share | Avg tenure | Avg monthly charges | Historical churn | Avg risk score |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| New Customers | Tenure ≤ 12 months | 2,186 | 31.0% | 4.7 | 56.10 | 47.4% | 65.8 |
+| High-Value Customers | Tenure > 12 and monthly charges ≥ 90 | 1,525 | 21.7% | 50.3 | 101.62 | 26.7% | 52.1 |
+| Phone-Only Basic Customers | Tenure > 12 and no internet service | 1,013 | 14.4% | 43.7 | 21.44 | 2.1% | 5.9 |
+| Loyal Contract Customers | Tenure > 12 on a one- or two-year contract | 1,221 | 17.3% | 51.8 | 67.59 | 5.7% | 18.2 |
+| Flexible Month-to-Month Customers | Tenure > 12 on a month-to-month contract | 1,098 | 15.6% | 30.4 | 67.64 | 30.5% | 56.9 |
+
+### Churn-risk scoring
+
+The score uses eight yes/no indicators built from account and service fields. Demographics are excluded for fairness.
+
+1. Customers are split 70/30 (stratified, seed 42).
+2. Each indicator's churn-rate lift is measured on the **training split only**.
+3. The indicators share 100 points in proportion to their lift.
+4. The score is normalised to 0–100. Categories: **Low 0–29 · Medium 30–59 · High 60–79 · Critical 80–100**.
+
+| Indicator | Points | | Indicator | Points |
+| --- | ---: | --- | --- | ---: |
+| Month-to-month contract | 17 | | No Tech Support (internet customers) | 14 |
+| Tenure ≤ 12 months | 15 | | Fiber optic internet | 13 |
+| Electronic check payment | 14 | | Paperless billing | 9 |
+| No Online Security (internet customers) | 14 | | Monthly charges ≥ 90 | 4 |
+
+**Validation on the 2,113 held-out customers:**
+- ROC AUC was **0.826** (training: 0.836; logistic-regression benchmark: 0.831).
+- Historical churn rose from **3.8% (Low) → 20.8% (Medium) → 42.3% (High) → 66.5% (Critical)**.
+- The High and Critical tiers held 34.5% of test customers but captured **70.8% of churners**.
+
+### Recommendation engine
+
+The **risk tier** sets urgency:
+- P1 Critical: personal retention call.
+- P2 High: personalised offer.
+- P3 Medium: engagement campaign.
+- P4 Low: loyalty and referral.
+
+The **segment** sets content:
+- New Customers: onboarding.
+- High-Value Customers: priority support and plan-fit review.
+- Flexible Month-to-Month Customers: contract options and add-on bundle.
+- Loyal Contract Customers: renewal management.
+- Phone-Only Basic Customers: light-touch maintenance.
+
+Every customer gets a `retention_priority` and a `recommended_action`. Active High/Critical customers are ranked in `outputs/priority_retention_list.csv`.
+
+### Key insights
+
+- **1,090 active customers** are High or Critical, and their monthly charges total **83,087.30**, or 26.2% of active monthly charges. This is revenue exposure, not projected savings.
+- **First-year customers make up 49.4% of that list**, and 64.5% of all New Customers score High or Critical.
+- High-Value customers on month-to-month terms churned at **44.0%**, versus **13.9%** on one- or two-year contracts. This is an association, not a proven effect.
+- 90% of priority customers have internet without Online Security or Tech Support, which makes protective add-on bundles a concrete offer to test.
+- Phone-Only Basic (2.1% churn) and Loyal Contract (5.7%) customers make up 31.7% of the base and need only low-cost programmes.
+
+### Visualizations
+
+| | |
+| --- | --- |
+| ![Customer segment distribution](outputs/visuals/01_segment_distribution.png) | ![Churn rate by segment](outputs/visuals/02_churn_rate_by_segment.png) |
+| ![Churn risk category distribution](outputs/visuals/03_risk_category_distribution.png) | ![Holdout validation of risk tiers](outputs/visuals/07_risk_validation_holdout.png) |
+| ![Average monthly charges by segment](outputs/visuals/04_avg_monthly_charges_by_segment.png) | ![Tenure by segment](outputs/visuals/05_tenure_by_segment.png) |
+| ![Segment-wise risk score comparison](outputs/visuals/06_risk_score_by_segment.png) | |
+
+### Generated outputs
+
+| File | Contents |
+| --- | --- |
+| [`outputs/customer_segments.csv`](outputs/customer_segments.csv) | One row per customer: segment, risk score and category, priority, recommended action, key account features, historical churn status |
+| [`outputs/segment_summary.csv`](outputs/segment_summary.csv) | One row per segment: size, share, averages, churn rate, average risk, characteristics, interpretation, recommended action |
+| [`outputs/customer_risk_scores.csv`](outputs/customer_risk_scores.csv) | One row per customer: all eight 0/1 indicators, raw points, 0–100 score, risk category |
+| [`outputs/risk_scoring_weights.csv`](outputs/risk_scoring_weights.csv) | Indicator definitions, training-split lift and points |
+| [`outputs/priority_retention_list.csv`](outputs/priority_retention_list.csv) | Ranked active High/Critical customers with actions |
+| [`outputs/task04_metrics.json`](outputs/task04_metrics.json) | Headline validation and summary numbers used in the memo |
+| [`outputs/visuals/`](outputs/visuals/) | Seven PNG charts |
+
+Customer-level files contain no demographic fields, only the dataset's anonymised `customerID`.
+
+### Edge-case validation
+
+`scripts/validate_edge_cases.py` runs 17 checks, and all 17 pass. They cover:
+- missing and repeated IDs;
+- missing numbers and categories;
+- zero tenure;
+- zero and extreme charges;
+- unknown labels;
+- empty inputs;
+- insufficient information;
+- score bounds and category boundaries;
+- full-dataset invariants.
+
+See [reports/edge_case_validation.md](reports/edge_case_validation.md).
+
+### How to run Task 04
+
+From the project root, with the virtual environment active and `pip install -r requirements.txt` done:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace notebooks/04_segmentation_recommendation.ipynb
+```
+
+The command regenerates every CSV and chart in `outputs/` plus `reports/edge_case_validation.md`. You can also open the notebook in Jupyter and choose *Run All*. To run the edge-case suite on its own:
+
+```bash
+python scripts/validate_edge_cases.py
+```
+
+The business rules live in [`scripts/segmentation_model.py`](scripts/segmentation_model.py), so the notebook, the validation script and any future dashboard share one implementation.
+
 ## Technologies
 
 - Python, pandas, NumPy
 - Jupyter Notebook
-- Matplotlib and Seaborn (listed for learning and extension; the included chart artifacts are delivered as HTML)
+- Matplotlib and Seaborn (Task 04 charts in `outputs/visuals/`; the earlier chart artifacts are delivered as HTML)
+- scikit-learn (Task 04: stratified split, ROC AUC, K-Means comparison and the logistic-regression benchmark)
 - Streamlit
 - Git and GitHub
 
@@ -121,7 +266,7 @@ The dashboard's sidebar filters update the customer KPIs, segment tables, custom
 
 ## GitHub publication
 
-No GitHub repository has been created or pushed from this environment. To publish:
+The project is published at [github.com/poorvansh4-ctrl/customer-churn-analysis](https://github.com/poorvansh4-ctrl/customer-churn-analysis). These steps document how it was first published:
 
 1. Create a **public** repository on GitHub, for example `customer-churn-analysis`.
 2. From this folder, initialize and commit the project:
@@ -137,7 +282,7 @@ No GitHub repository has been created or pushed from this environment. To publis
 
 3. Replace the repository placeholder below after verifying that the public repository is accessible.
 
-**GitHub repository:** Not created yet. Add the verified URL here after publication.
+**GitHub repository:** https://github.com/poorvansh4-ctrl/customer-churn-analysis
 
 ## Streamlit Community Cloud deployment
 
@@ -163,3 +308,4 @@ No deployed screenshot is included because the dashboard has not been published.
 - The 11 zero-tenure `TotalCharges` blanks are imputed using a documented business assumption.
 - IQR outliers are retained; statistical extremeness does not establish an error.
 - Charge units are used as provided; this project does not infer a currency.
+- Task 04's churn-risk score is a rule-based scorecard validated on a held-out split of the same snapshot. It is not a calibrated probability or a time-based forecast, and its recommended actions are hypotheses to test with a control group.
